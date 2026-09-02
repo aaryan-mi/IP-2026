@@ -17,8 +17,8 @@ class PolymorphismDemo{
     }
 
     public void addition(float f, float g) {
-       float sum = f + g;
-       System.out.println("Sum of two Integer parameters : "+sum);
+        float sum = f + g;
+        System.out.println("Sum of two Float parameters : " + sum);
     }
 }
 

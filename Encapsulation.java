@@ -1,8 +1,8 @@
 public class Encapsulation {
-    public static void main (String []arg){
+    public static void main(String[] arg) {
         System.out.println("Inside Main Function");
-        EncapsulationDemo obj = new EncapsulationDemo(); // now we have given it memory after defining it.
-        obj.display(); // to accesss whatever is inside it 
+        EncapsulationDemo obj = new EncapsulationDemo(); // allocate memory for object
+        obj.display(); // access member methods
         System.out.println(obj.x); // prints x
         System.out.println(obj.y); // prints y
     }

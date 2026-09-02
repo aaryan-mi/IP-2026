@@ -8,17 +8,17 @@ public class Constructors {
 }
 
 
-class ConstructorsDemo{
+class ConstructorsDemo {
     int x;
     int y;
-    ConstructorsDemo(int y, int x){
+
+    ConstructorsDemo(int x, int y) {
         this.x = x;
         this.y = y;
-        System.out.println("Inside Default Function");
-        
+        System.out.println("Inside Parameterized Constructor");
     }
 
-    void display(){
-    System.out.println("Inside Display Function");
+    void display() {
+        System.out.println("Inside Display Function");
     }
 }
