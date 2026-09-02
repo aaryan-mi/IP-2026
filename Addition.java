@@ -1,11 +1,10 @@
-public class Addition{
-    public static void main(String arg[]){
+public class Addition {
+    public static void main(String args[]) {
         int a = 10;
         int b = 34;
-        int result = 0;
+        int result = a + b;
 
-        result = a + b;
-        System.out.println("Calculating your result.....");
-        System.out.println("Your result is "+ result);
+        System.out.println("Calculating your result...");
+        System.out.println("Your result is: " + result);
     }
 }
