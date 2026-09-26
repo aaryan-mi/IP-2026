@@ -68,3 +68,23 @@ let arraynumbers = [61,5,1,61,61,6]
 let res = arraynumbers.map((i)=>i*10)
     console.log(res)
 
+// STRUCTURING
+
+let fruits = ["APPLE", "BANANA", "PINEAPPLE", "GUAVA", "ONION"];
+
+console.log(fruits);
+
+// DESTRUCTURING
+
+let [fruit1, fruit2, fruit3, fruit4, fruit5] = fruits;
+
+console.log(fruit1);
+console.log(fruit2);
+console.log(fruit3);
+console.log(fruit4);
+console.log(fruit5);
+
+// Template Literals
+
+let message = `My name is ${name}. I am ${age} years old and my department is ${department}.`;
+console.log(message);
