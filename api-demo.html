@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vanilla JS Fetch API Masterclass</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f0f2f5;
+            color: #1c1e21;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 950px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #606770;
+            margin-bottom: 25px;
+            font-size: 0.95rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .grid { grid-template-columns: 1fr; }
+        }
+
+        .card {
+            background: #fafafa;
+            border: 1px solid #e4e6eb;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .card h2 {
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .badge {
+            font-size: 0.75rem;
+            padding: 3px 8px;
+            border-radius: 4px;
+            color: white;
+            font-weight: bold;
+        }
+        .badge-get { background-color: #61affe; }
+        .badge-post { background-color: #49cc90; }
+        .badge-put { background-color: #fca130; }
+        .badge-delete { background-color: #f93e3e; }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #4b4f56;
+        }
+
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ccd0d5;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        textarea {
+            resize: vertical;
+            height: 60px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s ease;
+        }
+
+        button:hover { opacity: 0.9; }
+        button:disabled { background-color: #bcc0c4 !important; cursor: not-allowed; }
+
+        .btn-get { background-color: #007bff; }
+        .btn-post { background-color: #28a745; }
+        .btn-put { background-color: #fd7e14; }
+        .btn-delete { background-color: #dc3545; }
+
+        /* Output Logs Box */
+        .output-container {
+            margin-top: 25px;
+            background: #1e1e1e;
+            color: #00ff66;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Courier New', Courier, monospace;
+            position: relative;
+        }
+
+        .output-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #abb2bf;
+            border-bottom: 1px solid #333;
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+            font-size: 0.85rem;
+        }
+
+        #status-code {
+            font-weight: bold;
+        }
+
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-height: 250px;
+            overflow-y: auto;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Vanilla JS API Calls Demo</h1>
+        <p class="subtitle">Connecting live to <code>jsonplaceholder.typicode.com</code></p>
+
+        <div class="grid">
+            <!-- 1. GET Request -->
+            <div class="card">
+                <h2>1. GET Request <span class="badge badge-get">GET</span></h2>
+                <div class="form-group">
+                    <label for="get-id">Post ID (1-100 or empty for all):</label>
+                    <input type="text" id="get-id" placeholder="e.g., 1">
+                </div>
+                <button class="btn-get" id="btn-get">Fetch Data (GET)</button>
+            </div>
+
+            <!-- 2. POST Request -->
+            <div class="card">
+                <h2>2. POST Request <span class="badge badge-post">POST</span></h2>
+                <div class="form-group">
+                    <label for="post-title">Title:</label>
+                    <input type="text" id="post-title" value="Learning Java & JS">
+                </div>
+                <div class="form-group">
+                    <label for="post-body">Body Content:</label>
+                    <textarea id="post-body">Demonstrating REST API calls in Vanilla JavaScript.</textarea>
+                </div>
+                <button class="btn-post" id="btn-post">Create Post (POST)</button>
+            </div>
+
+            <!-- 3. PUT Request -->
+            <div class="card">
+                <h2>3. PUT Request <span class="badge badge-put">PUT</span></h2>
+                <div class="form-group">
+                    <label for="put-id">Post ID to Update:</label>
+                    <input type="text" id="put-id" value="1">
+                </div>
+                <div class="form-group">
+                    <label for="put-title">Updated Title:</label>
+                    <input type="text" id="put-title" value="Updated Title via PUT">
+                </div>
+                <button class="btn-put" id="btn-put">Update Resource (PUT)</button>
+            </div>
+
+            <!-- 4. DELETE Request -->
+            <div class="card">
+                <h2>4. DELETE Request <span class="badge badge-delete">DELETE</span></h2>
+                <div class="form-group">
+                    <label for="delete-id">Post ID to Delete:</label>
+                    <input type="text" id="delete-id" value="1">
+                </div>
+                <button class="btn-delete" id="btn-delete">Delete Resource (DELETE)</button>
+            </div>
+        </div>
+
+        <!-- Real-time Console Log Display -->
+        <div class="output-container">
+            <div class="output-header">
+                <span>Response Output Log</span>
+                <span id="status-code">Status: Ready</span>
+            </div>
+            <pre id="json-output">// Click any button above to send an HTTP request...</pre>
+        </div>
+    </div>
+
+    <script>
+        const BASE_URL = 'https://jsonplaceholder.typicode.com/posts';
+
+        // DOM UI Elements
+        const jsonOutput = document.getElementById('json-output');
+        const statusCode = document.getElementById('status-code');
+
+        // Helper: Display Response Data on UI
+        function displayResponse(status, data) {
+            statusCode.textContent = `HTTP Status: ${status}`;
+            jsonOutput.textContent = JSON.stringify(data, null, 2);
+        }
+
+        // Helper: Display Errors
+        function displayError(error) {
+            statusCode.textContent = `Error!`;
+            jsonOutput.textContent = `Error Message: ${error.message}`;
+        }
+
+
+        // =================================================================
+        // 1. GET CALL (Fetch Data)
+        // =================================================================
+        document.getElementById('btn-get').addEventListener('click', async () => {
+            const id = document.getElementById('get-id').value.trim();
+            const url = id ? `${BASE_URL}/${id}` : BASE_URL;
+
+            try {
+                // Default fetch method is GET
+                const response = await fetch(url);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP Error! Status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                displayResponse(response.status, data);
+
+            } catch (error) {
+                displayError(error);
+            }
+        });
+
+
+        // =================================================================
+        // 2. POST CALL (Create Resource)
+        // =================================================================
+        document.getElementById('btn-post').addEventListener('click', async () => {
+            const title = document.getElementById('post-title').value;
+            const body = document.getElementById('post-body').value;
+
+            const payload = {
+                title: title,
+                body: body,
+                userId: 1
+            };
+
+            try {
+                const response = await fetch(BASE_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json; charset=UTF-8'
+                    },
+                    body: JSON.stringify(payload) // Convert JavaScript object to JSON string
+                });
+
+                const data = await response.json();
+                displayResponse(`${response.status} Created`, data);
+
+            } catch (error) {
+                displayError(error);
+            }
+        });
+
+
+        // =================================================================
+        // 3. PUT CALL (Update Resource)
+        // =================================================================
+        document.getElementById('btn-put').addEventListener('click', async () => {
+            const id = document.getElementById('put-id').value;
+            const updatedTitle = document.getElementById('put-title').value;
+
+            if (!id) {
+                alert('Please enter a valid Post ID to update!');
+                return;
+            }
+
+            const payload = {
+                id: id,
+                title: updatedTitle,
+                body: 'This body text has been replaced via PUT request.',
+                userId: 1
+            };
+
+            try {
+                const response = await fetch(`${BASE_URL}/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json; charset=UTF-8'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+                displayResponse(`${response.status} OK`, data);
+
+            } catch (error) {
+                displayError(error);
+            }
+        });
+
+
+        // =================================================================
+        // 4. DELETE CALL (Remove Resource)
+        // =================================================================
+        document.getElementById('btn-delete').addEventListener('click', async () => {
+            const id = document.getElementById('delete-id').value;
+
+            if (!id) {
+                alert('Please enter a valid Post ID to delete!');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${BASE_URL}/${id}`, {
+                    method: 'DELETE'
+                });
+
+                // JSONPlaceholder returns empty object {} on successful DELETE
+                const data = await response.json();
+                displayResponse(`${response.status} OK (Deleted)`, { message: `Resource ${id} deleted successfully!`, responseData: data });
+
+            } catch (error) {
+                displayError(error);
+            }
+        });
+    </script>
+</body>
+</html>

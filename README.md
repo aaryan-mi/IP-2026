@@ -12,6 +12,7 @@ Repository containing Java practical programs, core OOP concepts, and assignment
 - **Basic & Arithmetic**: `Addition.java`, `Subtraction.java`, `Division.java`, `Arithmetic.java`, `swaptwo.java`
 - **Control Flow & Loops**: `evenno.java`, `onetoten.java`, `table.java`, `factorial.java`, `fibonacci.java`, `primecheck.java`, `palindrome.java`, `LargestOfThree.java`, `Statements.java`, `passorfail.java`
 - **OOP & Advanced**: `Constructors.java`, `Encapsulation.java`, `Inheritance.java`, `Polymorphism.java`, `ScannerDemo.java`, `ArrayDemo.java`
+- **Server & Web Demos**: `SimpleServer.java`, `StudentRegistration.java`, `api-demo.html`, `dom-demo.html`, `git-masterclass.html`, `java-serverlet-explaination.html`
 
 ## 🚀 How to Run
 

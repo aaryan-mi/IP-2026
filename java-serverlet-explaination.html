@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Java HTTP Server & Servlet Code Walkthrough</title>
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: #151c2c;
+            --card-border: #232d42;
+            --primary-orange: #f59e0b;
+            --accent-blue: #38bdf8;
+            --accent-green: #4ade80;
+            --accent-purple: #c084fc;
+            --accent-pink: #f43f5e;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --code-bg: #090d16;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            padding: 40px 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 1px solid var(--card-border);
+            padding-bottom: 30px;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            color: var(--text-main);
+            margin-bottom: 10px;
+        }
+
+        header h1 span {
+            color: var(--primary-orange);
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 1.15rem;
+        }
+
+        /* Layout Split */
+        .explanation-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 35px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.4);
+        }
+
+        .card.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .card h2 {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card h2.orange { color: var(--primary-orange); }
+        .card h2.blue { color: var(--accent-blue); }
+        .card h2.green { color: var(--accent-green); }
+        .card h2.purple { color: var(--accent-purple); }
+
+        .desc {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 15px;
+        }
+
+        /* Annotated Code Block */
+        .code-container {
+            background-color: var(--code-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            padding: 20px;
+            font-family: 'Consolas', 'Fira Code', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            white-space: pre;
+            line-height: 1.7;
+        }
+
+        /* Syntax Highlighting */
+        .kw { color: #f43f5e; font-weight: bold; } /* Keywords (public, static, class) */
+        .cls { color: #38bdf8; font-weight: bold; } /* Class names */
+        .str { color: #4ade80; } /* Strings */
+        .cmt { color: #64748b; font-style: italic; } /* Comments */
+        .num { color: #f59e0b; } /* Numbers */
+        .anno { color: #c084fc; font-weight: bold; } /* Annotations */
+
+        /* Inline Explanations List */
+        .def-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .def-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--card-border);
+            border-left: 4px solid var(--primary-orange);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 12px;
+        }
+
+        .def-item.blue { border-left-color: var(--accent-blue); }
+        .def-item.green { border-left-color: var(--accent-green); }
+        .def-item.purple { border-left-color: var(--accent-purple); }
+
+        .def-title {
+            font-size: 1rem;
+            font-weight: bold;
+            color: var(--text-main);
+            margin-bottom: 4px;
+            font-family: monospace;
+        }
+
+        .def-desc {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        /* Key Concepts Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        th {
+            color: var(--text-main);
+            background-color: var(--code-bg);
+        }
+
+        .badge {
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.78rem;
+            font-weight: bold;
+        }
+
+        .badge-orange { background: rgba(245, 158, 11, 0.2); color: var(--primary-orange); }
+        .badge-blue { background: rgba(56, 189, 248, 0.2); color: var(--accent-blue); }
+        .badge-green { background: rgba(74, 222, 128, 0.2); color: var(--accent-green); }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <header>
+            <h1><span>Java HTTP Server</span> Line-by-Line Guide</h1>
+            <p>Java Web Concepts Without Heavy Frameworks or XML Files</p>
+        </header>
+
+        <!-- Section 1: Overview & Anatomy -->
+        <div class="card full-width" style="margin-bottom: 30px;">
+            <h2 class="orange">1. Concept Mapping: Standard Java HTTP vs Jakarta Servlets</h2>
+            <p class="desc">How built-in JDK server components map directly to Jakarta/Javax Servlet concepts taught in enterprise Java:</p>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Built-in JDK Class</th>
+                        <th>Jakarta Servlet Equivalent</th>
+                        <th>Purpose & Definition</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>HttpServer</code></td>
+                        <td>Tomcat / Jetty Server</td>
+                        <td>Listens on a TCP port (e.g., 8080) and routes incoming connections.</td>
+                    </tr>
+                    <tr>
+                        <td><code>HttpHandler</code></td>
+                        <td><code>HttpServlet</code></td>
+                        <td>Interface that handles incoming requests and generates responses.</td>
+                    </tr>
+                    <tr>
+                        <td><code>HttpExchange</code></td>
+                        <td><code>HttpServletRequest</code> + <code>HttpServletResponse</code></td>
+                        <td>Encapsulates BOTH the request (headers/body) and response stream in one object.</td>
+                    </tr>
+                    <tr>
+                        <td><code>exchange.getRequestBody()</code></td>
+                        <td><code>request.getInputStream()</code></td>
+                        <td>Byte stream for reading incoming POST/PUT payloads.</td>
+                    </tr>
+                    <tr>
+                        <td><code>exchange.getResponseBody()</code></td>
+                        <td><code>response.getOutputStream()</code></td>
+                        <td>Byte stream for sending data back to the client/browser.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Section 2: Code Breakdown -->
+        <div class="card full-width" style="margin-bottom: 30px;">
+            <h2 class="blue">2. Annotated Source Code (`SimpleServer.java`)</h2>
+            <p class="desc">Review the annotated source code below. Key sections are explained in detail right after:</p>
+
+<div class="code-container">
+<span class="cmt">// 1. Built-in JDK HTTP modules (no third-party dependencies required)</span>
+<span class="kw">import</span> com.sun.net.httpserver.<span class="cls">HttpServer</span>;
+<span class="kw">import</span> com.sun.net.httpserver.<span class="cls">HttpHandler</span>;
+<span class="kw">import</span> com.sun.net.httpserver.<span class="cls">HttpExchange</span>;
+
+<span class="kw">import</span> java.io.<span class="cls">InputStream</span>;
+<span class="kw">import</span> java.io.<span class="cls">OutputStream</span>;
+<span class="kw">import</span> java.io.<span class="cls">IOException</span>;
+<span class="kw">import</span> java.net.<span class="cls">InetSocketAddress</span>;
+<span class="kw">import</span> java.nio.charset.<span class="cls">StandardCharsets</span>;
+<span class="kw">import</span> java.util.<span class="cls">Map</span>;
+<span class="kw">import</span> java.util.concurrent.<span class="cls">ConcurrentHashMap</span>;
+<span class="kw">import</span> java.util.concurrent.atomic.<span class="cls">AtomicInteger</span>;
+
+<span class="kw">public class</span> <span class="cls">SimpleServer</span> {
+
+    <span class="cmt">// Thread-safe memory storage for multi-threaded requests</span>
+    <span class="kw">private static final</span> <span class="cls">Map</span>&lt;<span class="cls">Integer</span>, <span class="cls">String</span>&gt; userDb = <span class="kw">new</span> <span class="cls">ConcurrentHashMap</span>&lt;&gt;();
+    <span class="kw">private static final</span> <span class="cls">AtomicInteger</span> idCounter = <span class="kw">new</span> <span class="cls">AtomicInteger</span>(<span class="num">0</span>);
+
+    <span class="kw">static</span> {
+        <span class="cmt">// Pre-populate dummy records</span>
+        <span class="kw">int</span> id1 = idCounter.incrementAndGet();
+        userDb.put(id1, <span class="str">"{\"id\":"</span> + id1 + <span class="str">", \"name\":\"Alice\", \"email\":\"alice@example.com\"}"</span>);
+    }
+
+    <span class="kw">public static void</span> main(<span class="cls">String</span>[] args) <span class="kw">throws</span> <span class="cls">IOException</span> {
+        <span class="cmt">// Create server binding to localhost port 8080</span>
+        <span class="cls">HttpServer</span> server = <span class="cls">HttpServer</span>.create(<span class="kw">new</span> <span class="cls">InetSocketAddress</span>(<span class="num">8080</span>), <span class="num">0</span>);
+
+        <span class="cmt">// Context mapping: Route URL path /api/users to our Handler class</span>
+        server.createContext(<span class="str">"/api/users"</span>, <span class="kw">new</span> <span class="cls">UserHandler</span>());
+        server.setExecutor(<span class="kw">null</span>); <span class="cmt">// Use default multi-threaded executor</span>
+        server.start();
+    }
+
+    <span class="cmt">// Handler acts like a Servlet</span>
+    <span class="kw">static class</span> <span class="cls">UserHandler</span> <span class="kw">implements</span> <span class="cls">HttpHandler</span> {
+        <span class="anno">@Override</span>
+        <span class="kw">public void</span> handle(<span class="cls">HttpExchange</span> exchange) <span class="kw">throws</span> <span class="cls">IOException</span> {
+            <span class="cmt">// 1. Set global response header</span>
+            exchange.getResponseHeaders().set(<span class="str">"Content-Type"</span>, <span class="str">"application/json; charset=UTF-8"</span>);
+
+            <span class="cmt">// 2. Extract Request Metadata</span>
+            <span class="cls">String</span> method = exchange.getRequestMethod(); <span class="cmt">// GET, POST, PUT, DELETE</span>
+            <span class="cls">String</span> path = exchange.getRequestURI().getPath();
+            <span class="cls">Integer</span> userId = parseIdFromPath(path);
+
+            <span class="cmt">// 3. Route according to HTTP Method</span>
+            <span class="kw">switch</span> (method) {
+                <span class="kw">case</span> <span class="str">"GET"</span>:    handleGet(exchange, userId); <span class="kw">break</span>;
+                <span class="kw">case</span> <span class="str">"POST"</span>:   handlePost(exchange); <span class="kw">break</span>;
+                <span class="kw">case</span> <span class="str">"PUT"</span>:    handlePut(exchange, userId); <span class="kw">break</span>;
+                <span class="kw">case</span> <span class="str">"DELETE"</span>: handleDelete(exchange, userId); <span class="kw">break</span>;
+                <span class="kw">default</span>:       sendResponse(exchange, <span class="num">451</span>, <span class="str">"{\"error\":\"Method not allowed\"}"</span>);
+            }
+        }
+        <span class="cmt">// ... Methods handling GET, POST, PUT, DELETE streams ...</span>
+    }
+}
+</div>
+        </div>
+
+        <!-- Section 3: Deep Dive Definitions -->
+        <div class="grid">
+            
+            <div class="card">
+                <h2 class="green">3. Imports & Core Classes</h2>
+                <p class="desc">Definitions of key JDK APIs used in the code:</p>
+
+                <ul class="def-list">
+                    <li class="def-item green">
+                        <div class="def-title">HttpServer</div>
+                        <div class="def-desc">The underlying HTTP engine provided by Oracle/OpenJDK. Listens for incoming socket connections and dispatches them to contexts.</div>
+                    </li>
+                    <li class="def-item green">
+                        <div class="def-title">HttpExchange</div>
+                        <div class="def-desc">Represents a single HTTP transaction. Used to read request headers/body and send response headers/body back to the client.</div>
+                    </li>
+                    <li class="def-item green">
+                        <div class="def-title">InetSocketAddress(8080)</div>
+                        <div class="def-desc">Pairs an IP address (or 0.0.0.0) with a TCP port number to establish a listening socket.</div>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h2 class="purple">4. Data Safety & Multi-Threading</h2>
+                <p class="desc">Why thread-safe objects are crucial in web servers:</p>
+
+                <ul class="def-list">
+                    <li class="def-item purple">
+                        <div class="def-title">ConcurrentHashMap&lt;K,V&gt;</div>
+                        <div class="def-desc">Standard <code>HashMap</code> fails under concurrent web requests. <code>ConcurrentHashMap</code> uses segment-level locks to allow safe parallel reads and writes without crashing the server.</div>
+                    </li>
+                    <li class="def-item purple">
+                        <div class="def-title">AtomicInteger</div>
+                        <div class="def-desc">A thread-safe counter. <code>incrementAndGet()</code> ensures that even if two POST requests arrive at the exact same millisecond, each gets a unique auto-incremented ID.</div>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h2 class="blue">5. Stream I/O Operations</h2>
+                <p class="desc">How HTTP data travels through network streams:</p>
+
+                <ul class="def-list">
+                    <li class="def-item blue">
+                        <div class="def-title">exchange.getRequestBody()</div>
+                        <div class="def-desc">Returns an <code>InputStream</code>. We read raw bytes sent by client payloads (like POST or PUT JSON bodies).</div>
+                    </li>
+                    <li class="def-item blue">
+                        <div class="def-title">sendResponseHeaders(statusCode, length)</div>
+                        <div class="def-desc">Sends HTTP status line (e.g., 200 OK, 404 Not Found) and total content length in bytes before writing the body.</div>
+                    </li>
+                    <li class="def-item blue">
+                        <div class="def-title">exchange.getResponseBody()</div>
+                        <div class="def-desc">Returns an <code>OutputStream</code>. We convert text into UTF-8 byte arrays and write them back over the socket.</div>
+                    </li>
+                </ul>
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+</html>

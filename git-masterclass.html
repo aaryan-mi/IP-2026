@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Git & Version Control: Deep Dive Masterclass</title>
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: #151c2c;
+            --card-border: #232d42;
+            --primary: #f05032; /* Git Orange */
+            --accent-blue: #38bdf8;
+            --accent-green: #4ade80;
+            --accent-purple: #c084fc;
+            --accent-yellow: #facc15;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --code-bg: #090d16;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            padding: 40px 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 1px solid var(--card-border);
+            padding-bottom: 30px;
+        }
+
+        header h1 {
+            font-size: 2.8rem;
+            color: var(--text-main);
+            margin-bottom: 10px;
+        }
+
+        header h1 span { color: var(--primary); }
+        header p { color: var(--text-muted); font-size: 1.15rem; }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 28px;
+            box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.4);
+        }
+
+        .card.full-width { grid-column: 1 / -1; }
+
+        .card h2 {
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card h2.orange { color: var(--primary); }
+        .card h2.blue { color: var(--accent-blue); }
+        .card h2.green { color: var(--accent-green); }
+        .card h2.purple { color: var(--accent-purple); }
+        .card h2.yellow { color: var(--accent-yellow); }
+
+        p.desc {
+            color: var(--text-muted);
+            margin-bottom: 15px;
+            font-size: 0.98rem;
+        }
+
+        /* Command Box Styling */
+        .cmd-block {
+            background-color: var(--code-bg);
+            border: 1px solid var(--card-border);
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            padding: 14px 18px;
+            margin: 12px 0;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 0.9rem;
+        }
+
+        .cmd-block.blue { border-left-color: var(--accent-blue); }
+        .cmd-block.green { border-left-color: var(--accent-green); }
+        .cmd-block.purple { border-left-color: var(--accent-purple); }
+        .cmd-block.yellow { border-left-color: var(--accent-yellow); }
+
+        .cmd-title {
+            color: var(--text-main);
+            font-weight: bold;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .cmd-code {
+            color: #e2e8f0;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 4px 8px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-bottom: 6px;
+        }
+
+        .cmd-explain {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* Architectural Diagram */
+        .architecture-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            background: var(--code-bg);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 15px;
+            border: 1px solid var(--card-border);
+        }
+
+        @media (max-width: 900px) {
+            .architecture-grid { grid-template-columns: 1fr; }
+        }
+
+        .arch-box {
+            background: #1c2536;
+            border: 1px solid #2d384e;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .arch-box h3 {
+            font-size: 1rem;
+            margin-bottom: 8px;
+            color: var(--accent-blue);
+        }
+
+        .arch-box p {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+        }
+
+        /* Detailed Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        th {
+            color: var(--text-main);
+            background-color: var(--code-bg);
+        }
+
+        .badge {
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.78rem;
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        .badge-red { background: rgba(240, 80, 50, 0.2); color: var(--primary); }
+        .badge-blue { background: rgba(56, 189, 248, 0.2); color: var(--accent-blue); }
+        .badge-green { background: rgba(74, 222, 128, 0.2); color: var(--accent-green); }
+
+        .callout {
+            background: rgba(250, 204, 21, 0.08);
+            border-left: 4px solid var(--accent-yellow);
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: #fef08a;
+        }
+
+        ul { list-style: none; padding-left: 0; }
+        ul li {
+            position: relative;
+            padding-left: 20px;
+            margin-bottom: 8px;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+        ul li::before {
+            content: "➔";
+            color: var(--primary);
+            position: absolute;
+            left: 0;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1><span>Git</span> Professional Masterclass Reference</h1>
+            <p>Comprehensive Guide to Version Control, Workflows, and Commands</p>
+        </header>
+
+        <!-- 1. Deep Core Architecture -->
+        <div class="card full-width" style="margin-bottom: 30px;">
+            <h2 class="purple">1. Git Architecture: The 4 Zones</h2>
+            <p class="desc">Understanding how files move between local storage and remote servers is crucial for avoiding data loss.</p>
+            
+            <div class="architecture-grid">
+                <div class="arch-box">
+                    <h3>1. Working Directory</h3>
+                    <p>Your actual project files on disk. Changes here are <strong>untracked</strong> or <strong>modified</strong> until added.</p>
+                </div>
+                <div class="arch-box">
+                    <h3>2. Staging Area (Index)</h3>
+                    <p>A preparation buffer zone. Allows you to group specific changes into a clean single snapshot.</p>
+                </div>
+                <div class="arch-box">
+                    <h3>3. Local Repository</h3>
+                    <p>The hidden <code>.git</code> database. Holds all committed snapshots (commits) permanently on your machine.</p>
+                </div>
+                <div class="arch-box">
+                    <h3>4. Remote Repository</h3>
+                    <p>Cloud server (GitHub, GitLab, Bitbucket). Centralized server for team collaboration.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Command Reference Grid -->
+        <div class="grid">
+
+            <!-- A. Setup & Configuration -->
+            <div class="card">
+                <h2 class="orange">A. Setup & Configuration</h2>
+                <p class="desc">Set identity and start new projects.</p>
+
+                <div class="cmd-block">
+                    <span class="cmd-title">Initialize a new repository</span>
+                    <span class="cmd-code">git init</span>
+                    <p class="cmd-explain">Creates a hidden <code>.git</code> folder in the current directory.</p>
+                </div>
+
+                <div class="cmd-block">
+                    <span class="cmd-title">Clone an existing project</span>
+                    <span class="cmd-code">git clone &lt;repository-url&gt;</span>
+                    <p class="cmd-explain">Downloads the remote repository and sets up local tracking branches automatically.</p>
+                </div>
+
+                <div class="cmd-block">
+                    <span class="cmd-title">Global User Configuration</span>
+                    <span class="cmd-code">git config --global user.name "Your Name"</span><br>
+                    <span class="cmd-code">git config --global user.email "you@example.com"</span>
+                    <p class="cmd-explain">Attaches your name and email address to every commit you make.</p>
+                </div>
+            </div>
+
+            <!-- B. Daily Tracking & Committing -->
+            <div class="card">
+                <h2 class="green">B. Staging & Committing</h2>
+                <p class="desc">Tracking file state changes and saving checkpoints.</p>
+
+                <div class="cmd-block green">
+                    <span class="cmd-title">Inspect Repository Status</span>
+                    <span class="cmd-code">git status</span>
+                    <p class="cmd-explain">Displays untracked, modified, and staged files across your workspace.</p>
+                </div>
+
+                <div class="cmd-block green">
+                    <span class="cmd-title">Stage Specific or All Files</span>
+                    <span class="cmd-code">git add &lt;filename&gt;</span><br>
+                    <span class="cmd-code">git add .</span>
+                    <p class="cmd-explain">Moves changes from the Working Directory into the Staging Area.</p>
+                </div>
+
+                <div class="cmd-block green">
+                    <span class="cmd-title">Commit Staged Changes</span>
+                    <span class="cmd-code">git commit -m "Descriptive message"</span>
+                    <p class="cmd-explain">Saves the staged snapshot permanently into the local repository history.</p>
+                </div>
+
+                <div class="cmd-block green">
+                    <span class="cmd-title">View Commit History</span>
+                    <span class="cmd-code">git log --oneline --graph</span>
+                    <p class="cmd-explain">Shows a concise tree view of past commits and active branches.</p>
+                </div>
+            </div>
+
+            <!-- C. Branching Strategy -->
+            <div class="card">
+                <h2 class="blue">C. Branching & Merging</h2>
+                <p class="desc">Isolate changes and experiment safely without breaking production code.</p>
+
+                <div class="cmd-block blue">
+                    <span class="cmd-title">List All Branches</span>
+                    <span class="cmd-code">git branch -a</span>
+                    <p class="cmd-explain">Shows local and remote branches. Current branch is highlighted with an asterisk (*).</p>
+                </div>
+
+                <div class="cmd-block blue">
+                    <span class="cmd-title">Create & Switch Branch</span>
+                    <span class="cmd-code">git switch -c feature-name</span><br>
+                    <span class="cmd-code">git checkout -b feature-name</span>
+                    <p class="cmd-explain">Creates a new branch and switches your workspace to it immediately.</p>
+                </div>
+
+                <div class="cmd-block blue">
+                    <span class="cmd-title">Merge Branch into Current</span>
+                    <span class="cmd-code">git merge feature-name</span>
+                    <p class="cmd-explain">Combines commits from <code>feature-name</code> into your currently active branch.</p>
+                </div>
+
+                <div class="cmd-block blue">
+                    <span class="cmd-title">Delete a Feature Branch</span>
+                    <span class="cmd-code">git branch -d feature-name</span>
+                    <p class="cmd-explain">Deletes the branch safely after it has been merged.</p>
+                </div>
+            </div>
+
+            <!-- D. Remote Syncing -->
+            <div class="card">
+                <h2 class="purple">D. Remote Synchronization</h2>
+                <p class="desc">Share code with teams and synchronize with online platforms like GitHub.</p>
+
+                <div class="cmd-block purple">
+                    <span class="cmd-title">Link Local to Remote</span>
+                    <span class="cmd-code">git remote add origin &lt;url&gt;</span>
+                    <p class="cmd-explain">Assigns remote URL to the alias name 'origin'.</p>
+                </div>
+
+                <div class="cmd-block purple">
+                    <span class="cmd-title">Push Local Commits</span>
+                    <span class="cmd-code">git push -u origin main</span>
+                    <p class="cmd-explain">Uploads local commits. <code>-u</code> establishes upstream tracking for future pushes.</p>
+                </div>
+
+                <div class="cmd-block purple">
+                    <span class="cmd-title">Fetch Remote Changes</span>
+                    <span class="cmd-code">git fetch origin</span>
+                    <p class="cmd-explain">Downloads new refs and commits from remote without altering your local working files.</p>
+                </div>
+
+                <div class="cmd-block purple">
+                    <span class="cmd-title">Pull Remote Changes</span>
+                    <span class="cmd-code">git pull origin main</span>
+                    <p class="cmd-explain">Executes <code>git fetch</code> followed immediately by <code>git merge</code>.</p>
+                </div>
+            </div>
+
+            <!-- E. Advanced: Undoing Changes -->
+            <div class="card">
+                <h2 class="yellow">E. Undoing & Reverting</h2>
+                <p class="desc">How to recover from mistakes gracefully without corrupting history.</p>
+
+                <div class="cmd-block yellow">
+                    <span class="cmd-title">Unstage a File (Keep Edits)</span>
+                    <span class="cmd-code">git restore --staged &lt;file&gt;</span>
+                    <p class="cmd-explain">Removes file from staging area back to modified working directory.</p>
+                </div>
+
+                <div class="cmd-block yellow">
+                    <span class="cmd-title">Discard Local Uncommitted Changes</span>
+                    <span class="cmd-code">git restore &lt;file&gt;</span>
+                    <p class="cmd-explain"><strong>Irreversible:</strong> Reverts file in working directory back to last commit state.</p>
+                </div>
+
+                <div class="cmd-block yellow">
+                    <span class="cmd-title">Safely Revert a Past Commit</span>
+                    <span class="cmd-code">git revert &lt;commit-hash&gt;</span>
+                    <p class="cmd-explain">Creates a <em>new commit</em> that undoes changes from a previous commit safely for shared repos.</p>
+                </div>
+
+                <div class="cmd-block yellow">
+                    <span class="cmd-title">Stash Temporary Uncommitted Work</span>
+                    <span class="cmd-code">git stash</span> / <span class="cmd-code">git stash pop</span>
+                    <p class="cmd-explain">Shelves uncommitted changes temporarily so you can switch branches cleanly.</p>
+                </div>
+            </div>
+
+            <!-- F. Ignoring Files (.gitignore) -->
+            <div class="card">
+                <h2 class="orange">F. The .gitignore File</h2>
+                <p class="desc">Prevent sensitive files and auto-generated build outputs from being tracked.</p>
+
+                <p class="desc">Create a plain text file named <code>.gitignore</code> in root folder:</p>
+                <div class="cmd-block">
+                    <span class="cmd-code"># Ignore node_modules & build directories</span><br>
+                    <span class="cmd-code">node_modules/</span><br>
+                    <span class="cmd-code">target/</span><br><br>
+                    <span class="cmd-code"># Ignore secret environment variables</span><br>
+                    <span class="cmd-code">.env</span><br><br>
+                    <span class="cmd-code"># Ignore OS files</span><br>
+                    <span class="cmd-code">.DS_Store</span>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- 3. Troubleshooting Merge Conflicts -->
+        <div class="card full-width" style="margin-bottom: 30px;">
+            <h2 class="yellow">3. Teaching Special Scenario: Resolving Merge Conflicts</h2>
+            <p class="desc">A merge conflict occurs when two developers modify the exact same line in a file on different branches and attempt to merge them together.</p>
+
+            <div class="callout">
+                <strong>What Git places inside your code file during a conflict:</strong>
+            </div>
+
+            <div class="cmd-block yellow" style="margin-top: 10px;">
+<pre style="color: #e2e8f0; font-family: monospace;">
+&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD (Your Current Branch Changes)
+System.out.println("Hello from Main!");
+=======
+System.out.println("Hello from Feature Branch!");
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; feature-a (Incoming Branch Changes)
+</pre>
+            </div>
+
+            <h3 style="font-size: 1.1rem; margin: 15px 0 10px 0; color: var(--text-main);">Steps to Resolve Merge Conflicts:</h3>
+            <ul>
+                <li>Open the conflicted file in VS Code or any text editor.</li>
+                <li>Choose which code snippet to keep and delete the conflict markers (<code>&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code>, <code>=======</code>, <code>&gt;&gt;&gt;&gt;&gt;&gt;&gt;</code>).</li>
+                <li>Save the file.</li>
+                <li>Run <code style="color: var(--accent-green);">git add &lt;file&gt;</code> to mark the conflict as resolved.</li>
+                <li>Run <code style="color: var(--accent-green);">git commit -m "Resolved merge conflict"</code> to finalize the merge.</li>
+            </ul>
+        </div>
+
+        <!-- 4. Deep Comparison Table -->
+        <div class="card full-width">
+            <h2 class="blue">4. Operation Deep Dive: Fetch vs. Pull vs. Checkout vs. Switch</h2>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Command</th>
+                        <th>Target Area</th>
+                        <th>Safety Level</th>
+                        <th>Primary Purpose</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="badge badge-blue">git fetch</span></td>
+                        <td>Local Repository Database</td>
+                        <td><span class="badge badge-green">100% Safe</span></td>
+                        <td>Downloads new updates from GitHub without altering your working code.</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-blue">git pull</span></td>
+                        <td>Working Directory + Local Repo</td>
+                        <td><span class="badge badge-red">Modifies Files</span></td>
+                        <td>Fetches remote commits AND auto-merges them into your current files.</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-blue">git switch</span></td>
+                        <td>Working Directory</td>
+                        <td><span class="badge badge-green">Safe</span></td>
+                        <td>Modern command dedicated solely to switching branches.</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-blue">git checkout</span></td>
+                        <td>Working Directory</td>
+                        <td><span class="badge badge-red">Use with care</span></td>
+                        <td>Multi-purpose legacy tool used to switch branches OR restore past files.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+</body>
+</html>
