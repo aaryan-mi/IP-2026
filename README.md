@@ -13,6 +13,7 @@ Repository containing Java practical programs, core OOP concepts, and assignment
 - **Control Flow & Loops**: `evenno.java`, `onetoten.java`, `table.java`, `factorial.java`, `fibonacci.java`, `primecheck.java`, `palindrome.java`, `LargestOfThree.java`, `Statements.java`, `passorfail.java`
 - **OOP & Advanced**: `Constructors.java`, `Encapsulation.java`, `Inheritance.java`, `Polymorphism.java`, `ScannerDemo.java`, `ArrayDemo.java`
 - **Server & Web Demos**: `SimpleServer.java`, `StudentRegistration.java`, `api-demo.html`, `dom-demo.html`, `git-masterclass.html`, `java-serverlet-explaination.html`
+- **Utilities**: `RandomNumber.java`, `UniqueRandomNumber.java`
 
 ## 🚀 How to Run
 
